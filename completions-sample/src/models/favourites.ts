@@ -6,7 +6,7 @@ export default interface IHitsData {
   }
 
 export default interface IFavouritesData {
-	total?: any | null,
+	total?: any | 0,
 	hits: IHitsData[]
   }
 
