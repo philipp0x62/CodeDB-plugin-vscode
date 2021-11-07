@@ -1,61 +1,91 @@
 "use strict";
-/*---------------------------------------------------------
- * Copyright (C) Microsoft Corporation. All rights reserved.
- *--------------------------------------------------------*/
+// /*---------------------------------------------------------
+//  * Copyright (C) Microsoft Corporation. All rights reserved.
+//  *--------------------------------------------------------*/
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = void 0;
+// 	const provider2 = vscode.languages.registerCompletionItemProvider(
+// 		'plaintext',
+// 		{
+// 			provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+// 				// get all text until the `position` and check if it reads `console.`
+// 				// and if so then complete if `log`, `warn`, and `error`
+// 				const linePrefix = document.lineAt(position).text.substr(0, position.character);
+// 				if (!linePrefix.endsWith('console.')) {
+// 					return undefined;
+// 				}
+// 				return [
+// 					new vscode.CompletionItem('log', vscode.CompletionItemKind.Method),
+// 					new vscode.CompletionItem('warn', vscode.CompletionItemKind.Method),
+// 					new vscode.CompletionItem('error', vscode.CompletionItemKind.Method),
+// 				];
+// 			}
+// 		},
+// 		'.' // triggered whenever a '.' is being typed
+// 	);
+// 	const searchQuery = await vscode.window.showInputBox({
+// 		placeHolder: "Search query",
+// 		prompt: "Search my snippets on Codever",
+// 	  });
+// 	context.subscriptions.push(provider2);
+// }
 const vscode = require("vscode");
-function activate(context) {
-    const provider1 = vscode.languages.registerCompletionItemProvider('plaintext', {
-        provideCompletionItems(document, position, token, context) {
-            // a simple completion item which inserts `Hello World!`
-            const simpleCompletion = new vscode.CompletionItem('Hello World!');
-            // a completion item that inserts its text as snippet,
-            // the `insertText`-property is a `SnippetString` which will be
-            // honored by the editor.
-            const snippetCompletion = new vscode.CompletionItem('Good part of the day');
-            snippetCompletion.insertText = new vscode.SnippetString('Good ${1|morning,afternoon,evening|}. It is ${1}, right?');
-            snippetCompletion.documentation = new vscode.MarkdownString("Inserts a snippet that lets you select the _appropriate_ part of the day for your greeting.");
-            // a completion item that can be accepted by a commit character,
-            // the `commitCharacters`-property is set which means that the completion will
-            // be inserted and then the character will be typed.
-            const commitCharacterCompletion = new vscode.CompletionItem('console');
-            commitCharacterCompletion.commitCharacters = ['.'];
-            commitCharacterCompletion.documentation = new vscode.MarkdownString('Press `.` to get `console.`');
-            // a completion item that retriggers IntelliSense when being accepted,
-            // the `command`-property is set which the editor will execute after 
-            // completion has been inserted. Also, the `insertText` is set so that 
-            // a space is inserted after `new`
-            const commandCompletion = new vscode.CompletionItem('new');
-            commandCompletion.kind = vscode.CompletionItemKind.Keyword;
-            commandCompletion.insertText = 'new ';
-            commandCompletion.command = { command: 'editor.action.triggerSuggest', title: 'Re-trigger completions...' };
-            // return all completion items as array
-            return [
-                simpleCompletion,
-                snippetCompletion,
-                commitCharacterCompletion,
-                commandCompletion
-            ];
+const codeDb_service_1 = require("./services/codeDb-service");
+const fs = require("fs");
+const codeIdMapping = [];
+const hits = [];
+// this method is called when your extension is activated
+// your extension is activated the very first time the command is executed
+const tokenFileLocation = "/var/tmp/CodeDbKey.txt";
+async function getCodeDbToken() {
+    const searchQuery = await vscode.window.showInputBox({
+        placeHolder: "Add CodeDb ",
+        prompt: "Search my snippets on Codever",
+    });
+    fs.writeFileSync(tokenFileLocation, searchQuery, function (err) {
+        if (err) {
+            return console.log("error");
         }
     });
-    const provider2 = vscode.languages.registerCompletionItemProvider('plaintext', {
-        provideCompletionItems(document, position) {
-            // get all text until the `position` and check if it reads `console.`
-            // and if so then complete if `log`, `warn`, and `error`
-            const linePrefix = document.lineAt(position).text.substr(0, position.character);
-            if (!linePrefix.endsWith('console.')) {
-                return undefined;
-            }
-            return [
-                new vscode.CompletionItem('log', vscode.CompletionItemKind.Method),
-                new vscode.CompletionItem('warn', vscode.CompletionItemKind.Method),
-                new vscode.CompletionItem('error', vscode.CompletionItemKind.Method),
-            ];
+    return searchQuery;
+}
+function activate(context) {
+    const disposable = vscode.commands.registerCommand('extension.codeDBplugin', async () => {
+        if (fs.existsSync(tokenFileLocation)) {
+            // File exists in path
+            let token = "";
+            let httpClient = new codeDb_service_1.default();
+            fs.readFile(tokenFileLocation, 'utf8', async function (err, data) {
+                token = data;
+                let results = await httpClient.getFavourites(token);
+                results.hits.forEach(function (item) {
+                    hits.push(item['shortcut']);
+                    //codeIdMapping.push[{'title':item['title'], 'code':item['code_id']}]
+                });
+                console.log(results);
+            });
         }
-    }, '.' // triggered whenever a '.' is being typed
-    );
-    context.subscriptions.push(provider1, provider2);
+        else {
+            console.log(getCodeDbToken());
+        }
+    });
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider('plaintext', {
+        provideCompletionItems(document, position, token, context) {
+            let completionText = [];
+            hits.forEach(function (item) {
+                completionText.push(new vscode.CompletionItem(item, vscode.CompletionItemKind.Method));
+            });
+            // return all completion items as array
+            return completionText;
+        }
+    }));
+    const addToken = vscode.commands.registerCommand('extension.codeDBAccessToken', async () => {
+        if (fs.existsSync(tokenFileLocation)) {
+            fs.unlinkSync(tokenFileLocation);
+        }
+        getCodeDbToken();
+    });
+    context.subscriptions.push(disposable, addToken);
 }
 exports.activate = activate;
 //# sourceMappingURL=extension.js.map
