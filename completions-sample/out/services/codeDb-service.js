@@ -7,7 +7,9 @@ class CodeDb extends http_client_1.HttpClient {
         this.getFavourites = (token) => this.instance.get(`/favourites/${token}`).then(response => {
             return response;
         });
-        this.getCode = (id) => this.instance.get(`/code/${id}`);
+        this.getCode = (id) => this.instance.get(`/code/${id}`).then(response => {
+            return response;
+        });
     }
 }
 exports.default = CodeDb;

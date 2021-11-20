@@ -11,5 +11,7 @@ export default class CodeDb extends HttpClient {
     return response;
   });
 
-  public getCode = (id: string) => this.instance.get<string>(`/code/${id}`);
+  public getCode = (id: string) => this.instance.get<string>(`/code/${id}`).then(response => {
+    return response;
+  });
 }
