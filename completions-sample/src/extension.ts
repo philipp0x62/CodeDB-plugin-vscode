@@ -99,7 +99,9 @@ export function activate(context: vscode.ExtensionContext) {
 							new vscode.Position(position.line,(position.character - 1) - id.length),new vscode.Position(position.line,position.character+1)
 						);
 						const editor = window.activeTextEditor;
-						editor.edit(eb => eb.replace(all, results));
+						if (editor){
+							editor.edit(eb => eb.replace(all, results));
+						}
 					}
 				}
 				let completionText: vscode.CompletionItem[] = [];

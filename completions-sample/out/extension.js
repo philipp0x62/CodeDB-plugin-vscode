@@ -82,7 +82,9 @@ function activate(context) {
                     let results = await httpClient.getCode(code_id);
                     var all = new vscode.Range(new vscode.Position(position.line, (position.character - 1) - id.length), new vscode.Position(position.line, position.character + 1));
                     const editor = vscode_1.window.activeTextEditor;
-                    editor.edit(eb => eb.replace(all, results));
+                    if (editor) {
+                        editor.edit(eb => eb.replace(all, results));
+                    }
                 }
             }
             let completionText = [];
