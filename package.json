@@ -1,20 +1,26 @@
 {
-	"name": "completions-sample",
-	"displayName": "Completion Item Provider Sample",
-	"version": "0.0.2",
-	"publisher": "vscode-samples",
+	"name": "CodeDB Plugin",
+	"displayName": "CodeDB Plugin",
+	"description": "Plugin for using your code snippets on CodeDB directly in Visual Studio Code",
+	"version": "1.0.0",
+	"publisher": "CodeDB",
 	"private": true,
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
+		"url": "https://github.com/philipp0x62/CodeDB-plugin-vscode"
 	},
 	"engines": {
-		"vscode": "^1.32.0"
+		"vscode": "^1.8.0"
 	},
 	"categories": [
-		"Other"
+		"Snippets",
+		"Keymaps"
 	],
+	"keywords": [
+		"CodeDB",
+		"Autocompletion",
+	]
 	"activationEvents": [
 		"onCommand:extension.codeDBplugin",
 		"onCommand:extension.codeDBAccessToken"
