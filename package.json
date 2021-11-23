@@ -1,6 +1,6 @@
 {
-	"name": "CodeDB Plugin",
-	"displayName": "CodeDB Plugin",
+	"name": "CodeDB",
+	"displayName": "CodeDB",
 	"description": "Plugin for using your code snippets on CodeDB directly in Visual Studio Code",
 	"version": "1.0.0",
 	"publisher": "CodeDB",
@@ -11,7 +11,7 @@
 		"url": "https://github.com/philipp0x62/CodeDB-plugin-vscode"
 	},
 	"engines": {
-		"vscode": "^1.8.0"
+		"vscode": "^1.32.0"
 	},
 	"categories": [
 		"Snippets",
