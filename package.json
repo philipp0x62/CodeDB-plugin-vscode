@@ -19,8 +19,8 @@
 	],
 	"keywords": [
 		"CodeDB",
-		"Autocompletion",
-	]
+		"Autocompletion"
+	],
 	"activationEvents": [
 		"onCommand:extension.codeDBplugin",
 		"onCommand:extension.codeDBAccessToken"
