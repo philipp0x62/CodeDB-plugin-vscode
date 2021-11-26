@@ -40,8 +40,8 @@ const hits = [];
 const tokenFileLocation = "/var/tmp/CodeDbKey.txt";
 async function getCodeDbToken() {
     const searchQuery = await vscode.window.showInputBox({
-        placeHolder: "Add CodeDb ",
-        prompt: "Search my snippets on Codever",
+        placeHolder: "Add CodeDB access token ",
+        prompt: "Search my snippets on CodeDB",
     });
     fs.writeFileSync(tokenFileLocation, searchQuery, function (err) {
         if (err) {
