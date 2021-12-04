@@ -5,31 +5,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = void 0;
 const vscode_1 = require("vscode");
-// 	const provider2 = vscode.languages.registerCompletionItemProvider(
-// 		'plaintext',
-// 		{
-// 			provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-// 				// get all text until the `position` and check if it reads `console.`
-// 				// and if so then complete if `log`, `warn`, and `error`
-// 				const linePrefix = document.lineAt(position).text.substr(0, position.character);
-// 				if (!linePrefix.endsWith('console.')) {
-// 					return undefined;
-// 				}
-// 				return [
-// 					new vscode.CompletionItem('log', vscode.CompletionItemKind.Method),
-// 					new vscode.CompletionItem('warn', vscode.CompletionItemKind.Method),
-// 					new vscode.CompletionItem('error', vscode.CompletionItemKind.Method),
-// 				];
-// 			}
-// 		},
-// 		'.' // triggered whenever a '.' is being typed
-// 	);
-// 	const searchQuery = await vscode.window.showInputBox({
-// 		placeHolder: "Search query",
-// 		prompt: "Search my snippets on Codever",
-// 	  });
-// 	context.subscriptions.push(provider2);
-// }
+const appdata_path_1 = require("appdata-path");
 const vscode = require("vscode");
 const codeDb_service_1 = require("./services/codeDb-service");
 const fs = require("fs");
@@ -37,12 +13,15 @@ const codeIdMapping = new Map();
 const hits = [];
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-const tokenFileLocation = "/var/tmp/CodeDbKey.txt";
+const tokenFileLocation = (0, appdata_path_1.default)("CODEDB/CodeDbKey.txt");
 async function getCodeDbToken() {
     const searchQuery = await vscode.window.showInputBox({
         placeHolder: "Add CodeDB access token ",
         prompt: "Search my snippets on CodeDB",
     });
+    if (!fs.existsSync((0, appdata_path_1.default)("CODEDB"))) {
+        fs.mkdirSync((0, appdata_path_1.default)("CODEDB"));
+    }
     fs.writeFileSync(tokenFileLocation, searchQuery, function (err) {
         if (err) {
             return console.log("error");
@@ -60,8 +39,10 @@ function activate(context) {
                 token = data;
                 let results = await httpClient.getFavourites(token);
                 results.hits.forEach(function (item) {
-                    hits.push(item['shortcut']);
-                    codeIdMapping.set(item['shortcut'], item['code_id']);
+                    if (hits.includes(item['shortcut']) == false) {
+                        hits.push(item['shortcut']);
+                        codeIdMapping.set(item['shortcut'], item['code_id']);
+                    }
                 });
                 console.log(results);
             });
