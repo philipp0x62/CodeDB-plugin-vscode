@@ -21,7 +21,7 @@ async function getCodeDbToken() {
 		placeHolder: "Add CodeDB access token ",
 		prompt: "Search my snippets on CodeDB",
 	});
-	if (!fs.existsSync(getAppDataPath("CODEDB"))){
+	if (!fs.existsSync(getAppDataPath("CODEDB"))) {
 		fs.mkdirSync(getAppDataPath("CODEDB"));
 	}
 	fs.writeFileSync(tokenFileLocation, searchQuery, function (err: any) {
@@ -31,8 +31,6 @@ async function getCodeDbToken() {
 	})
 	return searchQuery
 }
-
-
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -46,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 				token = data;
 				let results = await httpClient.getFavourites(token);
 				results.hits.forEach(function (item: { [x: string]: any; }) {
-					if( hits.includes(item['shortcut']) == false){
+					if (hits.includes(item['shortcut']) == false) {
 						hits.push(item['shortcut']);
 						codeIdMapping.set(item['shortcut'], item['code_id']);
 					}
@@ -74,10 +72,10 @@ export function activate(context: vscode.ExtensionContext) {
 						let code_id: string = codeIdMapping.get(id) || '';
 						let results = await httpClient.getCode(code_id);
 						var all = new vscode.Range(
-							new vscode.Position(position.line,(position.character - 1) - id.length),new vscode.Position(position.line,position.character+1)
+							new vscode.Position(position.line, (position.character - 1) - id.length), new vscode.Position(position.line, position.character + 1)
 						);
 						const editor = window.activeTextEditor;
-						if (editor){
+						if (editor) {
 							editor.edit(eb => eb.replace(all, results));
 						}
 					}
@@ -89,7 +87,7 @@ export function activate(context: vscode.ExtensionContext) {
 				// return all completion items as array
 				return completionText;
 			}
-		},'('));
+		}, '('));
 
 	context.subscriptions.push(
 		vscode.languages.registerCompletionItemProvider('plaintext', {
@@ -108,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
 				return null;
 			}
 		}));
-		
+
 	const addToken = vscode.commands.registerCommand('extension.codeDBAccessToken', async () => {
 		if (fs.existsSync(tokenFileLocation)) {
 			fs.unlinkSync(tokenFileLocation);
@@ -116,9 +114,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		getCodeDbToken();
 	});
-
-
-	
 
 	context.subscriptions.push(disposable, addToken);
 }
